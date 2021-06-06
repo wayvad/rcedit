@@ -24,7 +24,8 @@ void print_help() {
 "  --application-manifest <path-to-file>      Set manifest file\n"
 "  --set-resource-string <key> <value>        Set resource string\n"
 "  --get-resource-string <key>                Get resource string\n"
-"  --set-rcdata <key> <path-to-file>          Replace RCDATA by integer id\n");
+"  --set-rcdata <key> <path-to-file>          Replace RCDATA by integer id\n"
+"  --set-custom-unicode-resource <n> <t> <v>  Set custom resource type <t> with name <n> as unicode string value <v>\n");
 }
 
 bool print_error(const char* message) {
@@ -184,6 +185,18 @@ int wmain(int argc, const wchar_t* argv[]) {
       fwprintf(stdout, L"%s", result);
       return 0;  // no changes made
 
+    } else if (wcscmp(argv[i], L"--set-custom-unicode-resource") == 0 ||
+      wcscmp(argv[i], L"-scus") == 0) {
+      // E.g., --set-custom-unicode-resource Identity LimitedAccessFeature Teams_7c165drk6ws9w
+      if (argc - i < 4)
+        return print_error("--set-custom-unicode-resource requires 3 add'l parameters: 'Name' 'Type' 'String'");
+
+      const wchar_t* name = argv[++i];
+      const wchar_t* key = argv[++i];
+      const wchar_t* str = argv[++i];
+
+      if (!updater.SetCustomUnicodeString(std::make_tuple(name, key, str)))
+        return print_error("Unable to set custom unicode string");
     } else {
       if (loaded) {
         fprintf(stderr, "Unrecognized argument: \"%ls\"\n", argv[i]);

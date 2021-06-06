@@ -91,3 +91,9 @@ Get resource string:
 ```bash
 $ rcedit "path-to-exe-or-dll" --get-resource-string id_number
 ```
+
+Set custom resource type with value as a unicode string:
+
+```bash
+$ rcedit "path-to-exe-or-dll" --set-custom-unicode-resource "name" "type" "unicode value"
+```

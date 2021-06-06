@@ -442,6 +442,14 @@ bool ResourceUpdater::IsApplicationManifestSet() {
   return !applicationManifestPath_.empty();
 }
 
+bool ResourceUpdater::SetCustomUnicodeString(CustomUnicodeString customUnicodeString) {
+  if (std::get<0>(customUnicodeString).empty() || std::get<1>(customUnicodeString).empty()) {
+    return false;
+  }
+  customUnicodeString_ = customUnicodeString;
+  return true;
+}
+
 bool ResourceUpdater::SetVersionString(WORD languageId, const WCHAR* name, const WCHAR* value) {
   std::wstring nameStr(name);
   std::wstring valueStr(value);
@@ -842,6 +850,15 @@ bool ResourceUpdater::Commit() {
           }
         }
       }
+    }
+  }
+
+  if (!std::get<0>(customUnicodeString_).empty()) {
+    auto& data = std::get<2>(customUnicodeString_);
+    if (!UpdateResourceW(ru.Get(), std::get<1>(customUnicodeString_).c_str(), std::get<0>(customUnicodeString_).c_str(),
+      kLangEnUs, // this is hardcoded at 1033, ie, en-us, as that is what RT_MANIFEST default uses
+      const_cast<void*>(static_cast<const void*>(data.c_str())), data.length() * sizeof(wchar_t))) {
+      return false;
     }
   }
 
